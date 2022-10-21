@@ -32,10 +32,9 @@ class TestAllSVGAFileActivity : AppCompatActivity() {
 
     private val resourceNameList = ArrayList<String>()
     private val resourceErrorNameList = ArrayList<String>()
-    private var glideSource: ISource = SourceAsset()
-    private var svgaSource:ISource = SVGASourceAsset()
-    private var source:ISource = glideSource
+    private var source:ISource = SourceAsset()
     private var index: Int = -1
+
 
     //本地 异常文件：
     //  750x80.svga
@@ -44,7 +43,10 @@ class TestAllSVGAFileActivity : AppCompatActivity() {
     //  Goddess.svga
 
 
+    //通过Glide 加载数据
     private var loadByGlide = true
+    //本地数据
+    private var localSource = true
     init {
         resourceNameList.add("750x80")
         resourceNameList.add("alarm")
@@ -67,29 +69,34 @@ class TestAllSVGAFileActivity : AppCompatActivity() {
         resourceNameList.add("theme_award_beans")
     }
 
+    private fun changeSource() {
+        source = if(loadByGlide){
+            if(localSource){
+                SourceAsset()
+            }else{
+                SourceNet()
+            }
+        }else{
+            if(localSource){
+                SVGASourceAsset()
+            }else{
+                SourceNet()
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test_all_svgafile)
         radioGroup.setOnCheckedChangeListener { group, checkedId ->
-            glideSource = if (checkedId == R.id.buttonLocal) {
-                SourceAsset()
-            } else {
-                SourceNet()
-            }
+            localSource = checkedId == R.id.buttonLocal
             index = 0
-            source = glideSource
+            changeSource()
         }
         radioGroupRender.setOnCheckedChangeListener { group, checkedId ->
             loadByGlide = checkedId == R.id.buttonImageView
-            if(loadByGlide){
-                imageView.visibility = View.VISIBLE
-                SVGAImageView.visibility = View.GONE
-                svgaSource = SVGASourceAsset()
-            }else{
-                imageView.visibility = View.GONE
-                SVGAImageView.visibility = View.VISIBLE
-            }
-            source = svgaSource
+            index = 0
+            changeSource()
 
         }
         tvNext.setOnClickListener {

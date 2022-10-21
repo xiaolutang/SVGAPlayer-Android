@@ -7,6 +7,6 @@ package com.txl.ext_glide_test.source
  */
 class SourceNet() : ISource {
     override fun getPath(name: String): String {
-        return "file:///android_asset/${name}.svga"
+        return "https://github.com/xiaolutang/SVGAPlayer-Android/blob/feature/txl/ext_glide_2/ext-glide-test/src/main/assets/${name}.svga"
     }
 }
