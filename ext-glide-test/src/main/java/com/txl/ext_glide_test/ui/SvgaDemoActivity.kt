@@ -1,29 +1,10 @@
 package com.txl.ext_glide_test.ui
 
-import android.animation.Animator
-import android.animation.ValueAnimator
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Bundle
-import android.text.TextPaint
-import android.util.Log
 import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
-import com.opensource.svgaplayer.SVGADynamicEntity
-import com.opensource.svgaplayer.SVGAImageView
-import com.opensource.svgaplayer.drawer.SVGAAnimationDrawable
 import com.txl.ext_glide_test.R
-import com.txl.glide.model.SVGALoadType
-import com.txl.glide.model.SVGAModel
 
 
 class SvgaDemoActivity : AppCompatActivity() {
@@ -69,6 +50,9 @@ class SvgaDemoActivity : AppCompatActivity() {
         }
         findViewById<View>(R.id.tvCompareMemory).setOnClickListener {
             startActivity(Intent(this,LoadSvgaCompareMemoryActivity::class.java))
+        }
+        findViewById<View>(R.id.tvTestAllSvgaFile).setOnClickListener {
+            startActivity(Intent(this,TestAllSVGAFileActivity::class.java))
         }
     }
 }

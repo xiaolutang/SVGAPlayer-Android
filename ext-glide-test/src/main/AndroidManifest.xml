@@ -23,6 +23,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SVGAPlayerAndroid">
         <activity
+            android:name=".ui.TestAllSVGAFileActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.NormalGlideLoadActivity"
             android:exported="false" />
         <activity

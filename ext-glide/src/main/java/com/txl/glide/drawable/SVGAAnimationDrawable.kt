@@ -1,19 +1,24 @@
-package com.opensource.svgaplayer.drawer
+package com.txl.glide.drawable
 
 import android.animation.Animator
 import android.animation.ValueAnimator
+
 import android.graphics.Canvas
 import android.graphics.ColorFilter
 import android.graphics.PixelFormat
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
+import android.media.SoundPool
 import android.os.Build
 import android.util.Log
 import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import com.opensource.svgaplayer.SVGADynamicEntity
-import com.opensource.svgaplayer.SVGASoundManager
 import com.opensource.svgaplayer.SVGAVideoEntity
+import com.txl.glide.drawer.SGVADrawerProxy
+import com.txl.glide.helper.SVGAAudioEntityReflectHelper
+import com.txl.glide.helper.SVGASoundManagerReflectHelper
+import com.txl.glide.helper.SVGAVideoEntityReflectHelper
 
 /**
  * 当同一个SVGA图片被加载的时候 如果此时svga动画在运行中他们会共享同样的动画效果
@@ -21,14 +26,28 @@ import com.opensource.svgaplayer.SVGAVideoEntity
  * ***/
 class SVGAAnimationDrawable(
     private val videoItem: SVGAVideoEntity,
-    private val repeatCount:Int,
-    private val repeatMode:Int,
-    private val dynamicItem: SVGADynamicEntity): Animatable, Drawable(),
-    ValueAnimator.AnimatorUpdateListener {
+    private val dynamicItem: SVGADynamicEntity
+) : Animatable, Drawable(), ValueAnimator.AnimatorUpdateListener {
 
-    companion object{
+    var repeatCount: Int = ValueAnimator.INFINITE
+        set(value) {
+            resetAnimation()
+            field = value
+        }
+    var repeatMode: Int = ValueAnimator.RESTART
+        set(value) {
+            resetAnimation()
+            field = value
+        }
+
+    var hasAudio: Boolean? = null
+
+    var size: Int = 0
+
+    companion object {
         const val TAG = "SVGAAnimationDrawable"
     }
+
     var animatorListener: Animator.AnimatorListener? = null
         set(value) {
             mAnimator?.removeListener(field)
@@ -39,38 +58,56 @@ class SVGAAnimationDrawable(
 
         }
 
+    var animatorUpdateListener: ValueAnimator.AnimatorUpdateListener? = null
+
     private var mAnimator: ValueAnimator? = null
     private var currentFrame = 0
+
     //一共有多少帧
     private var totalFrame = 0
 
-    private var drawer = SVGACanvasDrawer(videoItem, dynamicItem).apply {
-        scaleBySelf = false
+    private var drawer = SGVADrawerProxy.createSGVADrawer(videoItem, dynamicItem)
+
+    private var mSoundPool: SoundPool? = null
+
+    private fun getSoundPool(): SoundPool? {
+        if (mSoundPool == null) {
+            mSoundPool = SVGAVideoEntityReflectHelper.getSoundPool(videoItem)
+        }
+        return mSoundPool
     }
 
     var scaleType = ImageView.ScaleType.MATRIX
 
-    fun resetDynamicEntity(dynamicItem: SVGADynamicEntity){
-        drawer = SVGACanvasDrawer(videoItem, dynamicItem).apply {
-            scaleBySelf = false
+    private fun resetAnimation() {
+        val isR = mAnimator?.isRunning
+        mAnimator = null
+        if (isRunning) {
+            start()
         }
     }
 
+    fun resetDynamicEntity(dynamicItem: SVGADynamicEntity) {
+        drawer = SGVADrawerProxy.createSGVADrawer(videoItem, dynamicItem)
+    }
+
     override fun getIntrinsicWidth(): Int {
-        return videoItem.videoSize.width.toInt()
+//        return videoItem.videoSize.width.toInt()
+        return -1
     }
 
     override fun getIntrinsicHeight(): Int {
-        return videoItem.videoSize.height.toInt()
+//        return videoItem.videoSize.height.toInt()
+        return -1
     }
 
     override fun start() {
-        Log.d(TAG,"start")
-        if(mAnimator == null || mAnimator?.isRunning == false){
+        Log.d(TAG, "start")
+        if (mAnimator == null || mAnimator?.isRunning == false) {
             val startFrame = 0
             val endFrame = videoItem.frames - 1
             totalFrame = (endFrame - startFrame + 1)
-            mAnimator = ValueAnimator.ofInt(startFrame,endFrame)
+            mAnimator = ValueAnimator.ofInt(startFrame, endFrame)
             mAnimator?.interpolator = LinearInterpolator()
             mAnimator?.duration = (totalFrame * (1000 / videoItem.FPS) / generateScale()).toLong()
             mAnimator?.repeatCount = repeatCount
@@ -81,10 +118,10 @@ class SVGAAnimationDrawable(
             }
 
             mAnimator?.start()
-        }else{
+        } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 mAnimator?.resume()
-            }else{
+            } else {
                 mAnimator?.start()
             }
         }
@@ -97,9 +134,11 @@ class SVGAAnimationDrawable(
             val getMethod = animatorClass.getDeclaredMethod("getDurationScale") ?: return scale
             scale = (getMethod.invoke(animatorClass) as Float).toDouble()
             if (scale == 0.0) {
-                val setMethod = animatorClass.getDeclaredMethod("setDurationScale",Float::class.java) ?: return scale
+                val setMethod =
+                    animatorClass.getDeclaredMethod("setDurationScale", Float::class.java)
+                        ?: return scale
                 setMethod.isAccessible = true
-                setMethod.invoke(animatorClass,1.0f)
+                setMethod.invoke(animatorClass, 1.0f)
                 scale = 1.0
             }
         } catch (ignore: Exception) {
@@ -109,21 +148,28 @@ class SVGAAnimationDrawable(
     }
 
 
+    fun hasAudio(): Boolean {
+        if (hasAudio == null) {
+            hasAudio = SVGAVideoEntityReflectHelper.getAudioList(videoItem).isNotEmpty()
+        }
+        return hasAudio == true
+    }
+
+
     override fun setVisible(visible: Boolean, restart: Boolean): Boolean {
         return super.setVisible(visible, restart)
     }
 
     override fun stop() {
-        Log.d(TAG,"stop")
+        Log.d(TAG, "stop")
         mAnimator?.cancel()
         mAnimator = null
-
-        videoItem.audioList.forEach { audio ->
-            audio.playID?.let {
-                if (SVGASoundManager.isInit()){
-                    SVGASoundManager.pause(it)
-                }else{
-                    videoItem.soundPool?.pause(it)
+        SVGAVideoEntityReflectHelper.getAudioList(videoItem).forEach {
+            SVGAAudioEntityReflectHelper.getPlayID(it)?.let { playId ->
+                if (SVGASoundManagerReflectHelper.isInit()) {
+                    SVGASoundManagerReflectHelper.pause(playId)
+                } else {
+                    getSoundPool()?.pause(playId)
                 }
             }
         }
@@ -134,7 +180,8 @@ class SVGAAnimationDrawable(
     }
 
     override fun draw(canvas: Canvas) {
-        drawer.drawFrame(canvas,currentFrame,scaleType)
+        //fixme 暂时不处理缩放问题 后续源码更新
+        drawer.drawFrame(canvas, currentFrame, scaleType)
     }
 
     override fun setBounds(left: Int, top: Int, right: Int, bottom: Int) {
@@ -155,25 +202,31 @@ class SVGAAnimationDrawable(
 
     override fun onAnimationUpdate(animation: ValueAnimator?) {
         currentFrame = animation?.animatedValue as Int
-//        Log.d(TAG,"onAnimationUpdate currentFrame :  $currentFrame")
         invalidateSelf()
+        animatorUpdateListener?.onAnimationUpdate(animation)
     }
 
     // FIXME: 完成资源回收
-    fun recycle(){
+    fun recycle() {
         clear()
+        animatorUpdateListener = null
+        animatorListener = null
+    }
+
+    fun size(): Int {
+        return size
     }
 
     private fun clear() {
-        videoItem.audioList.forEach { audio ->
-            audio.playID?.let {
-                if (SVGASoundManager.isInit()){
-                    SVGASoundManager.stop(it)
-                }else{
-                    videoItem.soundPool?.stop(it)
+        SVGAVideoEntityReflectHelper.getAudioList(videoItem).forEach { audio ->
+            SVGAAudioEntityReflectHelper.getPlayID(audio)?.let { playId ->
+                if (SVGASoundManagerReflectHelper.isInit()) {
+                    SVGASoundManagerReflectHelper.stop(playId)
+                } else {
+                    getSoundPool()?.stop(playId)
                 }
             }
-            audio.playID = null
+            SVGAAudioEntityReflectHelper.setPlayId(audio, null)
         }
         videoItem.clear()
     }

@@ -15,7 +15,7 @@ import java.net.URL
  * */
 class LoadNetSvgaActivity : AppCompatActivity() {
     // FIXME: 没找到合适的资源
-    private val imageString = "https://github.com/xiaolutang/SVGAPlayer-Android/blob/feature/txl/extglide/ext-glide-test/src/main/assets/theme_award_beans.svga"
+    private val imageString = "https://jojostorage.tinman.cn/app/forestAppResource/dripCollectDynamic.svga"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -14,8 +14,8 @@ import com.opensource.svgaplayer.SVGADrawable
 import com.opensource.svgaplayer.SVGADynamicEntity
 import com.opensource.svgaplayer.SVGAParser
 import com.opensource.svgaplayer.SVGAVideoEntity
-import com.opensource.svgaplayer.drawer.SVGAAnimationDrawable
 import com.txl.ext_glide_test.R
+import com.txl.glide.drawable.SVGAAnimationDrawable
 import kotlinx.android.synthetic.main.activity_load_asset_svga.*
 
 /**

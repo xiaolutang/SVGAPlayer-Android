@@ -64,6 +64,11 @@
                 android:text="同一个SVGA 文件内存占用对比"
                 style="@style/NormalText"
                 />
+            <TextView
+                android:id="@+id/tvTestAllSvgaFile"
+                android:text="测试项目中的每个svga文件"
+                style="@style/NormalText"
+                />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
