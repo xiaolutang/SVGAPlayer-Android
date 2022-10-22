@@ -1,4 +1,4 @@
-package com.txl.glide.helper
+package com.txl.glide.helper.reflect
 
 import android.media.SoundPool
 import com.opensource.svgaplayer.SVGAVideoEntity
@@ -48,7 +48,7 @@ object SVGAVideoEntityReflectHelper {
     fun setupAudios(entity: SVGAVideoEntity) {
         val movie = entity.movieItem
         movie?.let {
-            setupAudiosMethod?.let {method->
+            setupAudiosMethod?.let { method->
                 val waitSync = CountDownLatch(1)
                 val callback: () -> Unit = { //callback in mainThread
                     waitSync.countDown()

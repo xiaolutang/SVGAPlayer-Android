@@ -7,7 +7,7 @@ import com.opensource.svgaplayer.SVGADrawable
 import com.opensource.svgaplayer.SVGAParser
 import com.opensource.svgaplayer.SVGAVideoEntity
 import com.txl.ext_glide_test.R
-import com.txl.glide.model.SVGAModel
+import com.txl.glide.target.SVGAImageViewTarget
 import kotlinx.android.synthetic.main.activity_load_asset_svga.*
 
 class ChangeRepeatCountActivity : AppCompatActivity() {
@@ -16,7 +16,10 @@ class ChangeRepeatCountActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_change_repeat_count)
-        Glide.with(this).load(SVGAModel(imageString,repeatCount = 2)).into(glideSVGAImg)
+        val svgaImageViewTarget = SVGAImageViewTarget.Builder(glideSVGAImg)
+            .setAnimationRepeatCount(2)
+            .build()
+        Glide.with(this).load(imageString).into(svgaImageViewTarget)
         loadBySvgaLib()
     }
 

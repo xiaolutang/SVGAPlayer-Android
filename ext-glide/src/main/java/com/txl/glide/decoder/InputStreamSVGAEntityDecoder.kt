@@ -5,8 +5,8 @@ import com.bumptech.glide.load.ResourceDecoder
 import com.bumptech.glide.load.engine.bitmap_recycle.ArrayPool
 import com.opensource.svgaplayer.SVGAVideoEntity
 import com.opensource.svgaplayer.proto.MovieEntity
-import com.txl.glide.helper.SVGAImageHeaderHelper
-import com.txl.glide.helper.SVGAVideoEntityReflectHelper
+import com.txl.glide.helper.reflect.SVGAImageHeaderHelper
+import com.txl.glide.helper.reflect.SVGAVideoEntityReflectHelper
 import com.txl.glide.resource.SVGAEntityResource
 import java.io.ByteArrayOutputStream
 import java.io.File

@@ -1,18 +1,22 @@
 package com.txl.glide
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import com.bumptech.glide.Glide
 import com.bumptech.glide.GlideContext
 import com.bumptech.glide.Registry
-import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.module.LibraryGlideModule
 import com.opensource.svgaplayer.SVGACache
 import com.opensource.svgaplayer.SVGAVideoEntity
 import com.txl.glide.decoder.FileSVGAEntityDecoder
 import com.txl.glide.decoder.InputStreamSVGAEntityDecoder
 import com.txl.glide.drawable.SVGAAnimationDrawable
+import com.txl.glide.encode.FileEncoder
 import com.txl.glide.model.GlideUrlFileModelLoader
+import com.txl.glide.model.factory.AssetUriFileLoaderFactory
+import com.txl.glide.model.factory.FileFileModelLoaderFactory
+import com.txl.glide.model.factory.StringFileModelLoaderFactory
 import com.txl.glide.resource.transcode.SVGAAnimationDrawableTranscoder
 import com.txl.glide.target.SVGAImageViewTargetFactory
 import java.io.File
@@ -24,6 +28,14 @@ import java.io.InputStream
  * Desc:
  */
 class SVGAModelInit : LibraryGlideModule() {
+    private val tag = SVGAModelInit::class.java.simpleName
+
+    // FIXME: 还需要验证网络传输过程中zip 格式的svga 能否正常工作  (有问题)
+    //  编写svga 文件缓存encoder
+    //  完善demo
+    //  完善文档
+    //  发布
+    //  接入项目
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
         SVGACache.onCreate(context)
         //cachePath is equals to SVGACache.cacheDir
@@ -31,6 +43,7 @@ class SVGAModelInit : LibraryGlideModule() {
 
         //处理InputStream 流转换为SVGAEntity
         registry
+            //能够加载出网络和本地非zip 格式的svga
             .register(
                 SVGAVideoEntity::class.java,
                 SVGAAnimationDrawable::class.java,
@@ -40,15 +53,42 @@ class SVGAModelInit : LibraryGlideModule() {
                 Registry.BUCKET_ANIMATION, InputStream::class.java, SVGAVideoEntity::class.java,
                 InputStreamSVGAEntityDecoder(cachePath, glide.arrayPool)
             )
+
+            //处理本地asset目录中的zip 格式svga
             .append(//InputStream -> File 注册ModelLoader
-                GlideUrl::class.java,
+                String::class.java,
                 File::class.java,
-                GlideUrlFileModelLoader.GlideUrlFileModelLoaderFactory(cachePath,registry::getRewinder)
+                StringFileModelLoaderFactory()
+            )
+            .append(
+                Uri::class.java,
+                File::class.java,
+                AssetUriFileLoaderFactory(context.assets,cachePath,registry::getRewinder)
+            )
+
+                //处理网络中的zip 格式svga  这个方式缓存不对
+            .append(
+                Uri::class.java,
+                File::class.java,
+                GlideUrlFileModelLoader.GlideUrlFileModelLoaderFactory(
+                    cachePath,
+                    registry::getRewinder
+                )
+            )
+
+            .append(File::class.java, FileEncoder(glide.arrayPool))
+//
+                //解析缓存的svga zip 文件
+            .prepend(File::class.java,File::class.java,
+                FileFileModelLoaderFactory()
             )
             .append(//File -> SVGAVideoEntity
                 Registry.BUCKET_ANIMATION, File::class.java, SVGAVideoEntity::class.java,
                 FileSVGAEntityDecoder(glide.arrayPool)
             )
+
+
+
 
         hookTheImageViewFactory(glide)
     }

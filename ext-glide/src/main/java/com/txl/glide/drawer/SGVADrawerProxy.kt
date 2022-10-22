@@ -4,7 +4,7 @@ import android.graphics.Canvas
 import android.widget.ImageView
 import com.opensource.svgaplayer.SVGADynamicEntity
 import com.opensource.svgaplayer.SVGAVideoEntity
-import com.txl.glide.helper.SVGACanvasDrawerReflectHelper
+import com.txl.glide.helper.reflect.SVGACanvasDrawerReflectHelper
 
 /**
  * @author 唐小陆

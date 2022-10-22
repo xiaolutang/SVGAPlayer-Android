@@ -1,22 +1,15 @@
 package com.txl.ext_glide_test.ui
 
 import android.animation.Animator
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
-import android.view.animation.Animation
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
 import com.opensource.svgaplayer.SVGADrawable
 import com.opensource.svgaplayer.SVGAParser
 import com.opensource.svgaplayer.SVGAVideoEntity
 import com.txl.ext_glide_test.R
-import com.txl.glide.drawable.SVGAAnimationDrawable
-import com.txl.glide.model.SVGAModel
+import com.txl.glide.target.SVGAImageViewTarget
 import kotlinx.android.synthetic.main.activity_load_asset_svga.*
 
 
@@ -30,46 +23,28 @@ class AddListenerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_load_asset_svga)
-        Glide.with(this).load(SVGAModel(imageString,repeatCount = 0)).addListener(object :RequestListener<Drawable>{
-            override fun onLoadFailed(
-                e: GlideException?,
-                model: Any?,
-                target: Target<Drawable>?,
-                isFirstResource: Boolean,
-            ): Boolean {
-                return false
-            }
-
-            override fun onResourceReady(
-                resource: Drawable?,
-                model: Any?,
-                target: Target<Drawable>?,
-                dataSource: DataSource?,
-                isFirstResource: Boolean,
-            ): Boolean {
-                if(resource is SVGAAnimationDrawable){
-                    resource.animatorListener = object :Animator.AnimatorListener {
-                        override fun onAnimationStart(animation: Animator?) {
-                            Log.d("AddListenerActivity","onAnimationStart")
-                        }
-
-                        override fun onAnimationEnd(animation: Animator?) {
-                            Log.d("AddListenerActivity","onAnimationEnd")
-                        }
-
-                        override fun onAnimationCancel(animation: Animator?) {
-                            Log.d("AddListenerActivity","onAnimationCancel")
-                        }
-
-                        override fun onAnimationRepeat(animation: Animator?) {
-                            Log.d("AddListenerActivity","onAnimationRepeat")
-                        }
-
-                    }
+        val svgaImageViewTarget = SVGAImageViewTarget.Builder(glideSVGAImg)
+            .setAnimationUpdateListener { Log.d("AddListenerActivity","onAnimationUpdate") }
+            .setAnimationListener(object :Animator.AnimatorListener{
+                override fun onAnimationStart(animation: Animator?) {
+                    Log.d("AddListenerActivity","onAnimationStart")
                 }
-                return false
-            }
-        }).into(glideSVGAImg)
+
+                override fun onAnimationEnd(animation: Animator?) {
+                    Log.d("AddListenerActivity","onAnimationEnd")
+                }
+
+                override fun onAnimationCancel(animation: Animator?) {
+                    Log.d("AddListenerActivity","onAnimationCancel")
+                }
+
+                override fun onAnimationRepeat(animation: Animator?) {
+                    Log.d("AddListenerActivity","onAnimationRepeat")
+                }
+
+            })
+            .build()
+        Glide.with(this).load(imageString).into(svgaImageViewTarget)
         loadBySvgaLib()
     }
 

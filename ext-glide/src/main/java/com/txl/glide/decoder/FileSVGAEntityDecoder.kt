@@ -3,18 +3,15 @@ package com.txl.glide.decoder
 import com.bumptech.glide.load.Options
 import com.bumptech.glide.load.ResourceDecoder
 import com.bumptech.glide.load.engine.bitmap_recycle.ArrayPool
-import com.bumptech.glide.load.resource.file.FileResource
 import com.opensource.svgaplayer.SVGAVideoEntity
 import com.opensource.svgaplayer.proto.MovieEntity
-import com.txl.glide.helper.SVGAImageHeaderHelper
-import com.txl.glide.helper.SVGAVideoEntityReflectHelper
+import com.txl.glide.helper.isSVGAUnZipFile
+import com.txl.glide.helper.reflect.SVGAVideoEntityReflectHelper
 import com.txl.glide.resource.SVGAEntityResource
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
-import java.io.InputStream
-import java.util.zip.InflaterInputStream
 
 /**
  * @author 唐小陆
@@ -38,22 +35,9 @@ class FileSVGAEntityDecoder(
         height: Int,
         options: Options
     ): SVGAEntityResource? {
-        decodeUnZipFile(source)
         return decodeUnZipFile(source)
     }
 
-    private fun File.isSVGAUnZipFile(): Boolean {
-
-        fun hasChild(vararg fileNames: String): Boolean {
-            if (this.isDirectory) {
-                val childFileNames = this.list()?.toSet() ?: emptySet()
-                return fileNames.any { childFileNames.contains(it) }
-            }
-            return false
-        }
-
-        return hasChild(movieBinary, movieSpec)
-    }
 
     private fun decodeUnZipFile(source: File): SVGAEntityResource? {
         val binaryFile = File(source, movieBinary)

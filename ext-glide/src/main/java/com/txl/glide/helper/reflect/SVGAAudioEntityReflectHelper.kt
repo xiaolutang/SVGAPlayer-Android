@@ -1,4 +1,4 @@
-package com.txl.glide.helper
+package com.txl.glide.helper.reflect
 
 import kotlin.reflect.KMutableProperty
 

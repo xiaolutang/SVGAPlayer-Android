@@ -16,9 +16,9 @@ import android.widget.ImageView
 import com.opensource.svgaplayer.SVGADynamicEntity
 import com.opensource.svgaplayer.SVGAVideoEntity
 import com.txl.glide.drawer.SGVADrawerProxy
-import com.txl.glide.helper.SVGAAudioEntityReflectHelper
-import com.txl.glide.helper.SVGASoundManagerReflectHelper
-import com.txl.glide.helper.SVGAVideoEntityReflectHelper
+import com.txl.glide.helper.reflect.SVGAAudioEntityReflectHelper
+import com.txl.glide.helper.reflect.SVGASoundManagerReflectHelper
+import com.txl.glide.helper.reflect.SVGAVideoEntityReflectHelper
 
 /**
  * 当同一个SVGA图片被加载的时候 如果此时svga动画在运行中他们会共享同样的动画效果
@@ -81,6 +81,7 @@ class SVGAAnimationDrawable(
 
     private fun resetAnimation() {
         val isR = mAnimator?.isRunning
+        mAnimator?.cancel()
         mAnimator = null
         if (isRunning) {
             start()
@@ -89,6 +90,7 @@ class SVGAAnimationDrawable(
 
     fun resetDynamicEntity(dynamicItem: SVGADynamicEntity) {
         drawer = SGVADrawerProxy.createSGVADrawer(videoItem, dynamicItem)
+        resetAnimation()
     }
 
     override fun getIntrinsicWidth(): Int {

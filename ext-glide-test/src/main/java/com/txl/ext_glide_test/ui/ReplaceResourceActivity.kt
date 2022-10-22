@@ -1,5 +1,6 @@
 package com.txl.ext_glide_test.ui
 
+import android.animation.ValueAnimator
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import androidx.appcompat.app.AppCompatActivity
@@ -16,6 +17,7 @@ import com.opensource.svgaplayer.SVGAParser
 import com.opensource.svgaplayer.SVGAVideoEntity
 import com.txl.ext_glide_test.R
 import com.txl.glide.drawable.SVGAAnimationDrawable
+import com.txl.glide.target.SVGAImageViewTarget
 import kotlinx.android.synthetic.main.activity_load_asset_svga.*
 
 /**
@@ -41,33 +43,15 @@ class ReplaceResourceActivity : AppCompatActivity() {
         textPaint.setShadowLayer(3f, 2f, 2f, -0x1000000) //字体阴影，不需要可以不用设置
 
         dynamicEntity.setDynamicText(
-            "30",
+            "100",
             textPaint,
             "text_day"
         )
-        Glide.with(this).load(imageString).addListener(object : RequestListener<Drawable> {
-            override fun onLoadFailed(
-                e: GlideException?,
-                model: Any?,
-                target: Target<Drawable>?,
-                isFirstResource: Boolean,
-            ): Boolean {
-                return false
-            }
-
-            override fun onResourceReady(
-                resource: Drawable?,
-                model: Any?,
-                target: Target<Drawable>?,
-                dataSource: DataSource?,
-                isFirstResource: Boolean,
-            ): Boolean {
-                if (resource is SVGAAnimationDrawable) {
-                    resource.resetDynamicEntity(dynamicEntity)
-                }
-                return false
-            }
-        }).into(glideSVGAImg)
+        val svgaImageViewTarget = SVGAImageViewTarget.Builder(glideSVGAImg)
+            .setRepeatMode(ValueAnimator.REVERSE)
+            .setDynamicEntity(dynamicEntity)
+            .build()
+        Glide.with(this).load(imageString).into(svgaImageViewTarget)
     }
 
     /**

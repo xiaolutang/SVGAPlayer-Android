@@ -2,14 +2,11 @@ package com.txl.ext_glide_test.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.bumptech.glide.Glide
 import com.opensource.svgaplayer.SVGADrawable
 import com.opensource.svgaplayer.SVGAParser
 import com.opensource.svgaplayer.SVGAVideoEntity
 import com.txl.ext_glide_test.R
-import com.txl.glide.model.SVGAModel
 import kotlinx.android.synthetic.main.activity_load_asset_svga.*
-import java.net.URL
 
 /**
  * 统一个SVGA 图片内存对比

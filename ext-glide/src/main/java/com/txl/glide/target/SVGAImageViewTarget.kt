@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable
 import android.widget.ImageView
 import com.bumptech.glide.request.target.DrawableImageViewTarget
 import com.bumptech.glide.request.transition.Transition
+import com.opensource.svgaplayer.SVGADynamicEntity
 import com.txl.glide.drawable.SVGAAnimationDrawable
 
 class SVGAImageViewTarget private constructor(imageView: ImageView) : DrawableImageViewTarget(imageView),
@@ -21,6 +22,7 @@ class SVGAImageViewTarget private constructor(imageView: ImageView) : DrawableIm
     private var repeatMode: Int = ValueAnimator.RESTART
     private var animatorListener: Animator.AnimatorListener? = null
     private var animatorUpdateListener: ValueAnimator.AnimatorUpdateListener? = null
+    private var dynamicEntity: SVGADynamicEntity = SVGADynamicEntity()
 
     private val internalAnimatorListener: Animator.AnimatorListener = object :Animator.AnimatorListener{
         override fun onAnimationStart(animation: Animator?) {
@@ -47,13 +49,17 @@ class SVGAImageViewTarget private constructor(imageView: ImageView) : DrawableIm
             resetScaleType(resource)
             resource.animatorListener = internalAnimatorListener
             resource.animatorUpdateListener = this
+            resource.repeatMode = repeatMode
             if(repeatCount == REPEAT_COUNT_UN_SET){
                 if(resource.hasAudio()){
                     resource.repeatCount = 0
                 }else{
                     resource.repeatCount = ValueAnimator.INFINITE
                 }
+            }else{
+                resource.repeatCount = repeatCount
             }
+            resource.resetDynamicEntity(dynamicEntity)
         }
         super.onResourceReady(resource, transition)
     }
@@ -92,8 +98,13 @@ class SVGAImageViewTarget private constructor(imageView: ImageView) : DrawableIm
             return this
         }
 
-        fun setAnimationU(animatorUpdateListener:ValueAnimator.AnimatorUpdateListener):Builder{
+        fun setAnimationUpdateListener(animatorUpdateListener:ValueAnimator.AnimatorUpdateListener):Builder{
             target.animatorUpdateListener = animatorUpdateListener
+            return this
+        }
+
+        fun setDynamicEntity(dynamicEntity: SVGADynamicEntity):Builder{
+            target.dynamicEntity = dynamicEntity
             return this
         }
 

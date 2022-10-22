@@ -22,6 +22,7 @@ import com.txl.ext_glide_test.source.SourceNet
 import kotlinx.android.synthetic.main.activity_load_asset_svga.*
 import kotlinx.android.synthetic.main.activity_test_all_svgafile.*
 import kotlinx.android.synthetic.main.activity_test_all_svgafile.SVGAImageView
+import java.net.URL
 
 /**
  * 测试所有asset目录下的svga 文件是否能够正常显示
@@ -97,7 +98,13 @@ class TestAllSVGAFileActivity : AppCompatActivity() {
             loadByGlide = checkedId == R.id.buttonImageView
             index = 0
             changeSource()
-
+            if(loadByGlide){
+                imageView.visibility = View.VISIBLE
+                SVGAImageView.visibility = View.GONE
+            }else{
+                imageView.visibility = View.GONE
+                SVGAImageView.visibility = View.VISIBLE
+            }
         }
         tvNext.setOnClickListener {
             loadImage(true)
@@ -105,12 +112,15 @@ class TestAllSVGAFileActivity : AppCompatActivity() {
         tvPre.setOnClickListener {
             loadImage(false)
         }
+        Glide.with(this).load("https://gitee.com/comfromit/com.xiaolu.designmodel/blob/master/icon_ggg.png").into(imageView)
 
     }
 
     private fun loadImage(next: Boolean) {
+        val path = getSourcePath(next)
+        tvLoadPath.text = path
         if(loadByGlide){
-            Glide.with(this).load(getSourcePath(next)).addListener(object : RequestListener<Drawable>{
+            Glide.with(this).load(path).addListener(object : RequestListener<Drawable>{
                 override fun onLoadFailed(
                     e: GlideException?,
                     model: Any?,
@@ -133,8 +143,8 @@ class TestAllSVGAFileActivity : AppCompatActivity() {
                 }
             }).into(imageView)
         }else{
-            val path = getSourcePath(next)
-            SVGAParser(this).decodeFromAssets(path,object :SVGAParser.ParseCompletion{
+
+            val listener = object :SVGAParser.ParseCompletion{
                 override fun onComplete(videoItem: SVGAVideoEntity) {
                     val drawable = SVGADrawable(videoItem)
                     SVGAImageView.setImageDrawable(drawable)
@@ -144,7 +154,13 @@ class TestAllSVGAFileActivity : AppCompatActivity() {
                 override fun onError() {
                     Log.e(tag,"load failed svga lib::: $path")
                 }
-            })
+            }
+            if(localSource){
+                SVGAParser(this).decodeFromAssets(path,listener)
+            }else{
+                SVGAParser(this).decodeFromURL(URL(path),listener)
+            }
+
         }
 
     }
