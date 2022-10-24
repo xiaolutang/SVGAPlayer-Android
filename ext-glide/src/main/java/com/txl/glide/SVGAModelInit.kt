@@ -13,6 +13,7 @@ import com.txl.glide.decoder.FileSVGAEntityDecoder
 import com.txl.glide.decoder.InputStreamSVGAEntityDecoder
 import com.txl.glide.drawable.SVGAAnimationDrawable
 import com.txl.glide.encode.FileEncoder
+import com.txl.glide.encode.SVGAVideoEntityEncoder
 import com.txl.glide.model.GlideUrlFileModelLoader
 import com.txl.glide.model.factory.AssetUriFileLoaderFactory
 import com.txl.glide.model.factory.FileFileModelLoaderFactory
@@ -77,6 +78,7 @@ class SVGAModelInit : LibraryGlideModule() {
             )
 
             .append(File::class.java, FileEncoder(glide.arrayPool))
+            .append(SVGAVideoEntity::class.java, SVGAVideoEntityEncoder(glide.arrayPool))
 //
                 //修复SVGA文件缓存 在从缓存中加载 因为 原始加载路径 存在ModelLoader -> LoadPath
             //  DataCacheGenerator 的加载链路只会执行一个的问题  通过prepend 让自己的ModelLoader 先于Glide
@@ -93,6 +95,7 @@ class SVGAModelInit : LibraryGlideModule() {
 
 
         hookTheImageViewFactory(glide)
+
     }
 
     private fun hookTheImageViewFactory(glide: Glide) {
