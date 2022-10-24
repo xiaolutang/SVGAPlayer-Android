@@ -78,7 +78,9 @@ class SVGAModelInit : LibraryGlideModule() {
 
             .append(File::class.java, FileEncoder(glide.arrayPool))
 //
-                //解析缓存的svga zip 文件
+                //修复SVGA文件缓存 在从缓存中加载 因为 原始加载路径 存在ModelLoader -> LoadPath
+            //  DataCacheGenerator 的加载链路只会执行一个的问题  通过prepend 让自己的ModelLoader 先于Glide
+            //  框架层被找到  从而优先尝试自己的 加载路劲
             .prepend(File::class.java,File::class.java,
                 FileFileModelLoaderFactory()
             )

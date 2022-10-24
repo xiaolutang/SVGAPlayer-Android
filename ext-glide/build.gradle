@@ -29,6 +29,12 @@ android {
     }
 }
 
+project.ext {
+    publishingGroupId = 'cn.tinman.jojoread.android.common'
+    publishingArtifactId = 'ext_glide_svga'
+    publishingVersion = '1.0.0-SNAPSHOT'
+}
+
 dependencies {
 
     testImplementation 'junit:junit:4.13.2'
@@ -41,3 +47,5 @@ dependencies {
     implementation 'com.squareup.wire:wire-runtime:2.3.0-RC1'
     implementation "org.jetbrains.kotlin:kotlin-reflect:1.6.21"
 }
+
+apply from: rootDir.absolutePath + '/buildPublishing.gradle'

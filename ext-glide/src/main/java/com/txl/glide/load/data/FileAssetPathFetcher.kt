@@ -1,6 +1,7 @@
 package com.txl.glide.load.data
 
 import android.content.res.AssetManager
+import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.data.AssetPathFetcher
 import com.bumptech.glide.load.data.DataRewinder
 import com.bumptech.glide.load.model.GlideUrl
@@ -30,7 +31,10 @@ class FileAssetPathFetcher(
     }
 
     override fun close(data: File?) {
-        // FIXME: 暂时不删除
-//        data?.delete()
+        data?.delete()
+    }
+
+    override fun getDataSource(): DataSource {
+        return DataSource.REMOTE
     }
 }
