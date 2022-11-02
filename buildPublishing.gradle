@@ -1,0 +1,56 @@
+/**
+ * 1. set local.properties
+ *
+ * publishingRepoUsername=your
+ * publishingRepoPassword=pass
+ * publishingRepoUrl=http://localhost:8081/repository/maven-releases/
+ *
+ * 2. set project ext properties
+ *
+ * project.ext {
+ *     publishingGroupId = ''
+ *     publishingArtifactId = ''
+ *     publishingVersion = ''
+ * }
+ *
+ * 3. apply this script
+ *
+ * apply from: rootDir.absolutePath + '/buildPublishing.gradle'
+ *
+ */
+
+apply plugin: 'maven-publish'
+
+def getStringProperty(String propertyName) {
+    return project.hasProperty(propertyName) ? project.getProperty(propertyName) : ""
+}
+
+task androidSourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.srcDirs
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                artifact androidSourcesJar
+                groupId = getStringProperty("publishingGroupId")
+                artifactId = getStringProperty("publishingArtifactId")
+                version = getStringProperty("publishingVersion")
+            }
+        }
+
+        repositories {
+            maven {
+                credentials {
+                    username "public"
+                    password "LZUdzMrfWsWjU19h"
+                }
+                url = "https://maven.xjjj.co/repository/maven-snapshots/"
+//                url = "https://maven.xjjj.co/repository/maven-releases/"
+            }
+        }
+    }
+}

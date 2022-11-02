@@ -44,6 +44,9 @@ class SVGAAnimationDrawable(
 
     var size: Int = 0
 
+    private var visible = true
+    private var isStarted = true
+
     companion object {
         const val TAG = "SVGAAnimationDrawable"
     }
@@ -105,6 +108,13 @@ class SVGAAnimationDrawable(
 
     override fun start() {
         Log.d(TAG, "start")
+        isStarted = true
+        if(visible){
+            startAnimation()
+        }
+    }
+
+    private fun startAnimation() {
         if (mAnimator == null || mAnimator?.isRunning == false) {
             val startFrame = 0
             val endFrame = videoItem.frames - 1
@@ -159,11 +169,22 @@ class SVGAAnimationDrawable(
 
 
     override fun setVisible(visible: Boolean, restart: Boolean): Boolean {
+        this.visible = visible
+        if (!visible) {
+            stopAnimation()
+        } else if (isStarted) {
+            startAnimation()
+        }
         return super.setVisible(visible, restart)
     }
 
     override fun stop() {
         Log.d(TAG, "stop")
+        isStarted = false
+        stopAnimation()
+    }
+
+    private fun stopAnimation() {
         mAnimator?.cancel()
         mAnimator = null
         SVGAVideoEntityReflectHelper.getAudioList(videoItem).forEach {
@@ -206,6 +227,21 @@ class SVGAAnimationDrawable(
         currentFrame = animation?.animatedValue as Int
         invalidateSelf()
         animatorUpdateListener?.onAnimationUpdate(animation)
+    }
+
+    /**
+     * 跳转到指定帧
+     * */
+    fun stepToFrame(frame: Int, andPlay: Boolean) {
+        stopAnimation()
+        currentFrame = frame
+        invalidateSelf()
+        if (andPlay) {
+            startAnimation()
+            mAnimator?.let {
+                it.currentPlayTime = (Math.max(0.0f, Math.min(1.0f, (frame.toFloat() / videoItem.frames.toFloat()))) * it.duration).toLong()
+            }
+        }
     }
 
     // FIXME: 完成资源回收
