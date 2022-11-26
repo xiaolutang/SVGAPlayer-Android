@@ -8,6 +8,10 @@ import com.opensource.svgaplayer.SVGAParser
 import com.opensource.svgaplayer.SVGAVideoEntity
 import com.txl.ext_glide_test.R
 import kotlinx.android.synthetic.main.activity_load_asset_svga.*
+import kotlinx.android.synthetic.main.activity_load_asset_svga.SVGAImageView
+import kotlinx.android.synthetic.main.activity_load_asset_svga.glideSVGAImg
+import kotlinx.android.synthetic.main.activity_load_audio_svga.*
+import com.txl.glide.drawable.SVGAAnimationDrawable
 import java.net.URL
 
 /**
@@ -18,9 +22,22 @@ class LoadAudioSvgaActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_load_net_svga)
+        setContentView(R.layout.activity_load_audio_svga)
 //        loadBySvgaLib()
         Glide.with(this).load(imageString).into(glideSVGAImg)
+        tvPause.setOnClickListener {
+            val drawable = glideSVGAImg.drawable
+            if(drawable is SVGAAnimationDrawable){
+                drawable.stop()
+            }
+        }
+        tvResume.setOnClickListener {
+            val drawable = glideSVGAImg.drawable
+            if(drawable is SVGAAnimationDrawable){
+                drawable.start()
+            }
+        }
+
     }
 
     /**

@@ -25,9 +25,14 @@ import com.txl.glide.helper.reflect.SVGAVideoEntityReflectHelper
  *
  * ***/
 class SVGAAnimationDrawable(
-    private val videoItem: SVGAVideoEntity,
+    val videoItem: SVGAVideoEntity,
     private val dynamicItem: SVGADynamicEntity
 ) : Animatable, Drawable(), ValueAnimator.AnimatorUpdateListener {
+
+    /**
+     * 当前SVGA只绘制某一帧
+     * */
+    var drawOneFrame = false
 
     var repeatCount: Int = ValueAnimator.INFINITE
         set(value) {
@@ -45,7 +50,7 @@ class SVGAAnimationDrawable(
     var size: Int = 0
 
     private var visible = true
-    private var isStarted = true
+    private var isStarted = false
 
     companion object {
         const val TAG = "SVGAAnimationDrawable"
@@ -109,12 +114,21 @@ class SVGAAnimationDrawable(
     override fun start() {
         Log.d(TAG, "start")
         isStarted = true
+        SVGAVideoEntityReflectHelper.getAudioList(videoItem).forEach { audio ->
+            SVGAAudioEntityReflectHelper.getPlayID(audio)?.let { playId ->
+                Log.d(TAG, "start Stream id $playId")
+            }
+        }
         if(visible){
             startAnimation()
         }
     }
 
     private fun startAnimation() {
+        if(drawOneFrame){
+            stopAnimation()
+            return
+        }
         if (mAnimator == null || mAnimator?.isRunning == false) {
             val startFrame = 0
             val endFrame = videoItem.frames - 1
@@ -128,6 +142,24 @@ class SVGAAnimationDrawable(
             animatorListener?.let {
                 mAnimator?.addListener(it)
             }
+            mAnimator?.addListener(object :Animator.AnimatorListener{
+                override fun onAnimationStart(animation: Animator?) {
+
+                }
+
+                override fun onAnimationEnd(animation: Animator?) {
+                    currentFrame = videoItem.frames - 1
+                }
+
+                override fun onAnimationCancel(animation: Animator?) {
+
+                }
+
+                override fun onAnimationRepeat(animation: Animator?) {
+
+                }
+
+            })
 
             mAnimator?.start()
         } else {
@@ -203,8 +235,14 @@ class SVGAAnimationDrawable(
     }
 
     override fun draw(canvas: Canvas) {
-        //fixme 暂时不处理缩放问题 后续源码更新
-        drawer.drawFrame(canvas, currentFrame, scaleType)
+        if(visible){
+            drawer.drawFrame(canvas, currentFrame, scaleType)
+            SVGAVideoEntityReflectHelper.getAudioList(videoItem).forEach { audio ->
+                SVGAAudioEntityReflectHelper.getPlayID(audio)?.let { playId ->
+                    Log.d(TAG, "draw Stream id $playId")
+                }
+            }
+        }
     }
 
     override fun setBounds(left: Int, top: Int, right: Int, bottom: Int) {
@@ -235,6 +273,8 @@ class SVGAAnimationDrawable(
     fun stepToFrame(frame: Int, andPlay: Boolean) {
         stopAnimation()
         currentFrame = frame
+        //不播放 就是停留在绘制某一帧，
+        drawOneFrame = !andPlay
         invalidateSelf()
         if (andPlay) {
             startAnimation()

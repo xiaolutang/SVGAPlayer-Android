@@ -22,6 +22,8 @@ import com.txl.ext_glide_test.source.SourceNet
 import kotlinx.android.synthetic.main.activity_load_asset_svga.*
 import kotlinx.android.synthetic.main.activity_test_all_svgafile.*
 import kotlinx.android.synthetic.main.activity_test_all_svgafile.SVGAImageView
+import com.bumptech.glide.load.EncodeStrategy
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import java.net.URL
 
 /**
@@ -112,7 +114,6 @@ class TestAllSVGAFileActivity : AppCompatActivity() {
         tvPre.setOnClickListener {
             loadImage(false)
         }
-        Glide.with(this).load("https://gitee.com/comfromit/com.xiaolu.designmodel/blob/master/icon_ggg.png").into(imageView)
 
     }
 
@@ -120,7 +121,7 @@ class TestAllSVGAFileActivity : AppCompatActivity() {
         val path = getSourcePath(next)
         tvLoadPath.text = path
         if(loadByGlide){
-            Glide.with(this).load(path).addListener(object : RequestListener<Drawable>{
+            Glide.with(this).load(path).diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).addListener(object : RequestListener<Drawable>{
                 override fun onLoadFailed(
                     e: GlideException?,
                     model: Any?,

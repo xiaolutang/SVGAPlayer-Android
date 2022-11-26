@@ -51,7 +51,7 @@ class SVGAModelInit : LibraryGlideModule() {
                 SVGAAnimationDrawableTranscoder()
             )
             .append(//InputStream ——> SVGAVideoEntity  Glide 默认的modelLoader 能够加载出InputStream
-                Registry.BUCKET_ANIMATION, InputStream::class.java, SVGAVideoEntity::class.java,
+                Registry.BUCKET_BITMAP, InputStream::class.java, SVGAVideoEntity::class.java,
                 InputStreamSVGAEntityDecoder(cachePath, glide.arrayPool)
             )
 
@@ -87,7 +87,7 @@ class SVGAModelInit : LibraryGlideModule() {
                 FileFileModelLoaderFactory()
             )
             .append(//File -> SVGAVideoEntity
-                Registry.BUCKET_ANIMATION, File::class.java, SVGAVideoEntity::class.java,
+                Registry.BUCKET_BITMAP, File::class.java, SVGAVideoEntity::class.java,
                 FileSVGAEntityDecoder(glide.arrayPool)
             )
 
