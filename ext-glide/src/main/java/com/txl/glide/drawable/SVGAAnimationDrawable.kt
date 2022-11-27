@@ -114,11 +114,6 @@ class SVGAAnimationDrawable(
     override fun start() {
         Log.d(TAG, "start")
         isStarted = true
-        SVGAVideoEntityReflectHelper.getAudioList(videoItem).forEach { audio ->
-            SVGAAudioEntityReflectHelper.getPlayID(audio)?.let { playId ->
-                Log.d(TAG, "start Stream id $playId")
-            }
-        }
         if(visible){
             startAnimation()
         }
@@ -237,11 +232,6 @@ class SVGAAnimationDrawable(
     override fun draw(canvas: Canvas) {
         if(visible){
             drawer.drawFrame(canvas, currentFrame, scaleType)
-            SVGAVideoEntityReflectHelper.getAudioList(videoItem).forEach { audio ->
-                SVGAAudioEntityReflectHelper.getPlayID(audio)?.let { playId ->
-                    Log.d(TAG, "draw Stream id $playId")
-                }
-            }
         }
     }
 

@@ -11,6 +11,7 @@ import com.opensource.svgaplayer.SVGAClickAreaListener
 import com.opensource.svgaplayer.SVGADynamicEntity
 import com.txl.glide.drawable.SVGAAnimationDrawable
 import com.txl.glide.helper.reflect.SVGADynamicEntityReflectHelper
+import kotlin.math.min
 
 class SVGAImageViewTarget private constructor(imageView: ImageView) : DrawableImageViewTarget(imageView),
     ValueAnimator.AnimatorUpdateListener {
@@ -84,7 +85,8 @@ class SVGAImageViewTarget private constructor(imageView: ImageView) : DrawableIm
                 }
             }
             toFrame?.let { myToFrame->
-                resource.stepToFrame(myToFrame.frame,myToFrame.play)
+                val frame = min(myToFrame.frame,resource.videoItem.frames-1)
+                resource.stepToFrame(frame,myToFrame.play)
             }
         }
         super.onResourceReady(resource, transition)
