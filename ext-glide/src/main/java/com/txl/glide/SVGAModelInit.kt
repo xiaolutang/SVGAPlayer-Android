@@ -32,6 +32,7 @@ import java.io.InputStream
  */
 class SVGAModelInit : LibraryGlideModule() {
     private val tag = SVGAModelInit::class.java.simpleName
+    private var isInit = false
 
     // FIXME: 还需要验证网络传输过程中zip 格式的svga 能否正常工作  (有问题)
     //  编写svga 文件缓存encoder
@@ -40,7 +41,10 @@ class SVGAModelInit : LibraryGlideModule() {
     //  发布
     //  接入项目
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
-        SVGASoundManager.init()
+        if(isInit){
+            return
+        }
+        isInit = true
         SVGACache.onCreate(context)
         //cachePath is equals to SVGACache.cacheDir
         val cachePath = context.cacheDir.absolutePath + File.separatorChar + "svga"

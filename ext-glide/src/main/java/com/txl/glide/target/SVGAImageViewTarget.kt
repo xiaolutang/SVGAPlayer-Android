@@ -27,6 +27,7 @@ class SVGAImageViewTarget private constructor(imageView: ImageView) : DrawableIm
     private var animatorUpdateListener: ValueAnimator.AnimatorUpdateListener? = null
     private var dynamicEntity: SVGADynamicEntity = SVGADynamicEntity()
     private var mItemClickAreaListener: SVGAClickAreaListener? = null
+    private var toFrame: ToFrame? = null
 
     private val internalAnimatorListener: Animator.AnimatorListener = object :Animator.AnimatorListener{
         override fun onAnimationStart(animation: Animator?) {
@@ -82,6 +83,9 @@ class SVGAImageViewTarget private constructor(imageView: ImageView) : DrawableIm
                     return@setOnTouchListener false
                 }
             }
+            toFrame?.let { myToFrame->
+                resource.stepToFrame(myToFrame.frame,myToFrame.play)
+            }
         }
         super.onResourceReady(resource, transition)
     }
@@ -135,9 +139,15 @@ class SVGAImageViewTarget private constructor(imageView: ImageView) : DrawableIm
             return this
         }
 
+        fun setToFrame(frame: Int,play: Boolean):Builder{
+            target.toFrame = ToFrame(frame, play)
+            return this
+        }
 
         fun build():SVGAImageViewTarget{
            return target
         }
     }
+
+    class ToFrame(val frame:Int = 0,val play:Boolean = true)
 }
