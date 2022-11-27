@@ -2,39 +2,47 @@ package com.txl.glide.decoder
 
 import com.bumptech.glide.load.Options
 import com.bumptech.glide.load.ResourceDecoder
+import com.bumptech.glide.load.data.DataRewinder
 import com.bumptech.glide.load.engine.bitmap_recycle.ArrayPool
+import com.bumptech.glide.load.model.GlideUrl
 import com.opensource.svgaplayer.SVGAVideoEntity
 import com.opensource.svgaplayer.proto.MovieEntity
-import com.txl.glide.helper.isSVGAUnZipFile
+import com.txl.glide.helper.InputStreamEncodeFile
+import com.txl.glide.helper.reflect.SVGAImageHeaderHelper
 import com.txl.glide.helper.reflect.SVGAVideoEntityReflectHelper
 import com.txl.glide.resource.SVGAEntityResource
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
+import java.io.InputStream
+
+const val movieBinary = "movie.binary"
+const val movieSpec = "movie.spec"
 
 /**
  * @author 唐小陆
  * Created on 2022/10/19
  * Desc:
  */
-
-class FileSVGAEntityDecoder(
-    private val arrayPool: ArrayPool
-) : ResourceDecoder<File, SVGAVideoEntity> {
-    override fun handles(source: File, options: Options): Boolean {
-        return source.isSVGAUnZipFile()
+class ZipInputStreamSVGAEntityDecoder(
+    private val cachePath: String,
+    private val arrayPool: ArrayPool,
+    private val obtainRewind: (InputStream) -> DataRewinder<InputStream>
+) : ResourceDecoder<InputStream, SVGAVideoEntity> {
+    override fun handles(source: InputStream, options: Options): Boolean {
+        return SVGAImageHeaderHelper.isZipFormatStream(inputStream = source)
     }
 
     override fun decode(
-        source: File,
+        source: InputStream,
         width: Int,
         height: Int,
         options: Options
     ): SVGAEntityResource? {
-        return decodeUnZipFile(source)
+        val file = InputStreamEncodeFile(GlideUrl("${System.currentTimeMillis()}"), cachePath, obtainRewind).decodeZipFile(source)
+        return decodeUnZipFile(file)
     }
-
 
     private fun decodeUnZipFile(source: File): SVGAEntityResource? {
         val binaryFile = File(source, movieBinary)
@@ -85,5 +93,4 @@ class FileSVGAEntityDecoder(
             arrayPool.put(buffer)
         }
     }
-
 }

@@ -8,9 +8,11 @@ import com.bumptech.glide.GlideContext
 import com.bumptech.glide.Registry
 import com.bumptech.glide.module.LibraryGlideModule
 import com.opensource.svgaplayer.SVGACache
+import com.opensource.svgaplayer.SVGASoundManager
 import com.opensource.svgaplayer.SVGAVideoEntity
 import com.txl.glide.decoder.FileSVGAEntityDecoder
 import com.txl.glide.decoder.InputStreamSVGAEntityDecoder
+import com.txl.glide.decoder.ZipInputStreamSVGAEntityDecoder
 import com.txl.glide.drawable.SVGAAnimationDrawable
 import com.txl.glide.encode.FileEncoder
 import com.txl.glide.encode.SVGAVideoEntityEncoder
@@ -38,6 +40,7 @@ class SVGAModelInit : LibraryGlideModule() {
     //  发布
     //  接入项目
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
+        SVGASoundManager.init()
         SVGACache.onCreate(context)
         //cachePath is equals to SVGACache.cacheDir
         val cachePath = context.cacheDir.absolutePath + File.separatorChar + "svga"
@@ -54,45 +57,11 @@ class SVGAModelInit : LibraryGlideModule() {
                 Registry.BUCKET_BITMAP, InputStream::class.java, SVGAVideoEntity::class.java,
                 InputStreamSVGAEntityDecoder(cachePath, glide.arrayPool)
             )
-
-            //处理本地asset目录中的zip 格式svga
-            .append(//InputStream -> File 注册ModelLoader
-                String::class.java,
-                File::class.java,
-                StringFileModelLoaderFactory()
+            .append(//InputStream ——> SVGAVideoEntity  zip 格式的数据处理
+                Registry.BUCKET_BITMAP, InputStream::class.java, SVGAVideoEntity::class.java,
+                ZipInputStreamSVGAEntityDecoder(cachePath, glide.arrayPool,registry::getRewinder)
             )
-            .append(
-                Uri::class.java,
-                File::class.java,
-                AssetUriFileLoaderFactory(context.assets,cachePath,registry::getRewinder)
-            )
-
-                //处理网络中的zip 格式svga  这个方式缓存不对
-            .append(
-                Uri::class.java,
-                File::class.java,
-                GlideUrlFileModelLoader.GlideUrlFileModelLoaderFactory(
-                    cachePath,
-                    registry::getRewinder
-                )
-            )
-            //缓存
-            .append(File::class.java, FileEncoder(glide.arrayPool))
             .append(SVGAVideoEntity::class.java, SVGAVideoEntityEncoder(glide.arrayPool))
-
-                //修复SVGA文件缓存 在从缓存中加载 因为 原始加载路径 存在ModelLoader -> LoadPath
-            //  DataCacheGenerator 的加载链路只会执行一个的问题  通过prepend 让自己的ModelLoader 先于Glide
-            //  框架层被找到  从而优先尝试自己的 加载路劲
-            .prepend(File::class.java,File::class.java,
-                FileFileModelLoaderFactory()
-            )
-            .append(//解码decoder File -> SVGAVideoEntity
-                Registry.BUCKET_BITMAP, File::class.java, SVGAVideoEntity::class.java,
-                FileSVGAEntityDecoder(glide.arrayPool)
-            )
-
-
-
 
         hookTheImageViewFactory(glide)
 
