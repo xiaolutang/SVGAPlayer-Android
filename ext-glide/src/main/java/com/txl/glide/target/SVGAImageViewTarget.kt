@@ -3,11 +3,14 @@ package com.txl.glide.target
 import android.animation.Animator
 import android.animation.ValueAnimator
 import android.graphics.drawable.Drawable
+import android.view.MotionEvent
 import android.widget.ImageView
 import com.bumptech.glide.request.target.DrawableImageViewTarget
 import com.bumptech.glide.request.transition.Transition
+import com.opensource.svgaplayer.SVGAClickAreaListener
 import com.opensource.svgaplayer.SVGADynamicEntity
 import com.txl.glide.drawable.SVGAAnimationDrawable
+import com.txl.glide.helper.reflect.SVGADynamicEntityReflectHelper
 
 class SVGAImageViewTarget private constructor(imageView: ImageView) : DrawableImageViewTarget(imageView),
     ValueAnimator.AnimatorUpdateListener {
@@ -23,6 +26,7 @@ class SVGAImageViewTarget private constructor(imageView: ImageView) : DrawableIm
     private var animatorListener: Animator.AnimatorListener? = null
     private var animatorUpdateListener: ValueAnimator.AnimatorUpdateListener? = null
     private var dynamicEntity: SVGADynamicEntity = SVGADynamicEntity()
+    private var mItemClickAreaListener: SVGAClickAreaListener? = null
 
     private val internalAnimatorListener: Animator.AnimatorListener = object :Animator.AnimatorListener{
         override fun onAnimationStart(animation: Animator?) {
@@ -60,6 +64,24 @@ class SVGAImageViewTarget private constructor(imageView: ImageView) : DrawableIm
                 resource.repeatCount = repeatCount
             }
             resource.resetDynamicEntity(dynamicEntity)
+            //这个需要测试 会不会导致View的点击事件失效
+            mItemClickAreaListener?.let {
+                view.setOnTouchListener { v, event ->
+                    if (event?.action != MotionEvent.ACTION_DOWN) {
+                        return@setOnTouchListener false
+                    }
+                    val clickMap = SVGADynamicEntityReflectHelper.getClickMap(dynamicEntity)
+                    for ((key, value) in clickMap) {
+                        if (event.x >= value[0] && event.x <= value[2] && event.y >= value[1] && event.y <= value[3]) {
+                            mItemClickAreaListener?.let {
+                                it.onClick(key)
+                                return@setOnTouchListener true
+                            }
+                        }
+                    }
+                    return@setOnTouchListener false
+                }
+            }
         }
         super.onResourceReady(resource, transition)
     }
@@ -105,6 +127,11 @@ class SVGAImageViewTarget private constructor(imageView: ImageView) : DrawableIm
 
         fun setDynamicEntity(dynamicEntity: SVGADynamicEntity):Builder{
             target.dynamicEntity = dynamicEntity
+            return this
+        }
+
+        fun setItemClickAreaListener(mItemClickAreaListener: SVGAClickAreaListener):Builder{
+            target.mItemClickAreaListener = mItemClickAreaListener
             return this
         }
 

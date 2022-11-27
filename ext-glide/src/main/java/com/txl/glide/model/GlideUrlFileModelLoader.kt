@@ -100,6 +100,7 @@ class GlideUrlFileModelLoader(
         }
 
         override fun getDataSource(): DataSource {
+            //不缓存的原因是 其它的loadPath 占据了缓存key  因此zip格式的svga不会被缓存
             return DataSource.LOCAL
         }
     }

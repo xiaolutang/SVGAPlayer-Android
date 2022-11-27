@@ -22,14 +22,6 @@ class FileEncoder(private val arrayPool: ArrayPool) : Encoder<File> {
         if(!data.isSVGAUnZipFile()){
             return false
         }
-        if(file.isDirectory){
-            Log.e("FileEncoder ","file is zip ${file.isSVGAUnZipFile()}")
-        }
-        if(data.isDirectory){
-            Log.e("FileEncoder ","file is zip ${file.isSVGAUnZipFile()}")
-        }
-//        copyFile(data,file)
-//        copyFileUsingStream(data,file)
         copyDir(data,file)
         //拷贝到diskLruCache后 将缓存目录下的文件直接删除
         data.delete()

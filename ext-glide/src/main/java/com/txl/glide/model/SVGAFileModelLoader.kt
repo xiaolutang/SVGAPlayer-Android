@@ -47,8 +47,7 @@ class SVGAFileModelLoader:ModelLoader<File,File> {
         }
 
         override fun getDataSource(): DataSource {
-            // FIXME: Remote 缓存问题
-            return DataSource.REMOTE
+            return DataSource.LOCAL
         }
     }
 }
