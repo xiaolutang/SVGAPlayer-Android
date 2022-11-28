@@ -11,5 +11,6 @@ class App : Application() {
         super.onCreate()
         val glide = Glide.get(this)
         SVGAModelInit().registerComponents(this, glide, glide.registry)
+        SVGALogger.setLogEnabled(true)
     }
 }

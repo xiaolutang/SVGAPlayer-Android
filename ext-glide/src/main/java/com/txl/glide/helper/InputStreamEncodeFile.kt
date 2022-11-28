@@ -24,7 +24,6 @@ class InputStreamEncodeFile(
                 throw IOException("data not zip ")
             }
             try {
-                // FIXME: 这一块文件缓存 考虑接入 Glide lru 文件缓存
                 cacheDir.makeSureExist()
                 ByteArrayInputStream(bytes).use {
                     unzip(it, cacheDir)
@@ -104,5 +103,6 @@ class InputStreamEncodeFile(
         } else {
             dir.mkdirs()
         }
+        SVGACacheManager.createNewFile(parentFile,this)
     }
 }

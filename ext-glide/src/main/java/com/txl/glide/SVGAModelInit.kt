@@ -47,7 +47,7 @@ class SVGAModelInit : LibraryGlideModule() {
         isInit = true
         SVGACache.onCreate(context)
         //cachePath is equals to SVGACache.cacheDir
-        val cachePath = context.cacheDir.absolutePath + File.separatorChar + "svga"
+        val cachePath = context.cacheDir.absolutePath + File.separatorChar + "glide-ext-svga"
 
         //处理InputStream 流转换为SVGAEntity
         registry
