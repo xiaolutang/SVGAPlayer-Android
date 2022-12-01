@@ -3,7 +3,6 @@ package com.example.ponycui_home.svgaplayer;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 
@@ -14,6 +13,7 @@ import com.opensource.svgaplayer.SVGAVideoEntity;
 import com.opensource.svgaplayer.utils.log.SVGALogger;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;

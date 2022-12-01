@@ -1,25 +1,18 @@
 package com.txl.glide
 
 import android.content.Context
-import android.net.Uri
 import android.util.Log
 import com.bumptech.glide.Glide
 import com.bumptech.glide.GlideContext
 import com.bumptech.glide.Registry
+import com.bumptech.glide.annotation.GlideModule
 import com.bumptech.glide.module.LibraryGlideModule
 import com.opensource.svgaplayer.SVGACache
-import com.opensource.svgaplayer.SVGASoundManager
 import com.opensource.svgaplayer.SVGAVideoEntity
-import com.txl.glide.decoder.FileSVGAEntityDecoder
 import com.txl.glide.decoder.InputStreamSVGAEntityDecoder
 import com.txl.glide.decoder.ZipInputStreamSVGAEntityDecoder
 import com.txl.glide.drawable.SVGAAnimationDrawable
-import com.txl.glide.encode.FileEncoder
 import com.txl.glide.encode.SVGAVideoEntityEncoder
-import com.txl.glide.model.GlideUrlFileModelLoader
-import com.txl.glide.model.factory.AssetUriFileLoaderFactory
-import com.txl.glide.model.factory.FileFileModelLoaderFactory
-import com.txl.glide.model.factory.StringFileModelLoaderFactory
 import com.txl.glide.resource.transcode.SVGAAnimationDrawableTranscoder
 import com.txl.glide.target.SVGAImageViewTargetFactory
 import java.io.File
@@ -30,6 +23,7 @@ import java.io.InputStream
  * Created on 2022/10/19
  * Desc:
  */
+@GlideModule
 class SVGAModelInit : LibraryGlideModule() {
     private val tag = SVGAModelInit::class.java.simpleName
     private var isInit = false

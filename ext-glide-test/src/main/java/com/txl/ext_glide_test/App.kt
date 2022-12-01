@@ -9,8 +9,8 @@ import com.txl.glide.SVGAModelInit
 class App : Application() {
     override fun onCreate() {
         super.onCreate()
-        val glide = Glide.get(this)
-        SVGAModelInit().registerComponents(this, glide, glide.registry)
+//        val glide = Glide.get(this)
+//        SVGAModelInit().registerComponents(this, glide, glide.registry)
         SVGALogger.setLogEnabled(true)
     }
 }
