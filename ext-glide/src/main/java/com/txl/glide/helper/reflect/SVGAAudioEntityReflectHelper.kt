@@ -9,6 +9,7 @@ import kotlin.reflect.KMutableProperty
  */
 object SVGAAudioEntityReflectHelper {
     private var playIDFiled: KMutableProperty<*>? = null
+    private var soundIDFiled: KMutableProperty<*>? = null
 
     init {
         val sVGAAudioEntity =
@@ -16,6 +17,11 @@ object SVGAAudioEntityReflectHelper {
         sVGAAudioEntity.members.find { it.name == "playID" }?.let {
             if(it is KMutableProperty<*>){
                 playIDFiled = it
+            }
+        }
+        sVGAAudioEntity.members.find { it.name == "soundID" }?.let {
+            if(it is KMutableProperty<*>){
+                soundIDFiled = it
             }
         }
     }
@@ -26,5 +32,13 @@ object SVGAAudioEntityReflectHelper {
 
     fun setPlayId(any: Any, playId: Int?) {
         playIDFiled?.setter?.call(any,playId)
+    }
+
+    fun getSoundID(any: Any): Int? {
+        return soundIDFiled?.getter?.call(any) as? Int?
+    }
+
+    fun setSoundID(any: Any, playId: Int?) {
+        soundIDFiled?.setter?.call(any,playId)
     }
 }

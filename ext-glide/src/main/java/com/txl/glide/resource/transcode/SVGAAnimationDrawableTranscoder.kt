@@ -1,6 +1,5 @@
 package com.txl.glide.resource.transcode
 
-import android.animation.ValueAnimator
 import com.bumptech.glide.load.Options
 import com.bumptech.glide.load.engine.Resource
 import com.bumptech.glide.load.resource.transcode.ResourceTranscoder

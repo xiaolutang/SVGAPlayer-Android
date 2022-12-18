@@ -69,6 +69,11 @@
                 android:text="测试项目中的每个svga文件"
                 style="@style/NormalText"
                 />
+            <TextView
+                android:id="@+id/tvCustomPlayAudio"
+                android:text="自定义音频播放"
+                style="@style/NormalText"
+                />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

@@ -29,6 +29,7 @@ class SVGAImageViewTarget private constructor(imageView: ImageView) : DrawableIm
     private var dynamicEntity: SVGADynamicEntity = SVGADynamicEntity()
     private var mItemClickAreaListener: SVGAClickAreaListener? = null
     private var toFrame: ToFrame? = null
+    private var audioPlayerListener: SVGAAnimationDrawable.AudioPlayerListener? = null
 
     private val internalAnimatorListener: Animator.AnimatorListener = object :Animator.AnimatorListener{
         override fun onAnimationStart(animation: Animator?) {
@@ -88,6 +89,9 @@ class SVGAImageViewTarget private constructor(imageView: ImageView) : DrawableIm
                 val frame = min(myToFrame.frame,resource.videoItem.frames-1)
                 resource.stepToFrame(frame,myToFrame.play)
             }
+            audioPlayerListener?.let { listener->
+                resource.audioPlayerListener = listener
+            }
         }
         super.onResourceReady(resource, transition)
     }
@@ -143,6 +147,11 @@ class SVGAImageViewTarget private constructor(imageView: ImageView) : DrawableIm
 
         fun setToFrame(frame: Int,play: Boolean):Builder{
             target.toFrame = ToFrame(frame, play)
+            return this
+        }
+
+        fun setAudioPlayerListener(listener: SVGAAnimationDrawable.AudioPlayerListener): Builder {
+            target.audioPlayerListener = listener
             return this
         }
 

@@ -54,6 +54,7 @@
         <activity android:name=".ui.ChangeRepeatModeActivity" />
         <activity android:name=".ui.LoadAudioSvgaActivity" />
         <activity android:name=".ui.LoadSvgaCompareMemoryActivity" />
+        <activity android:name=".ui.CustomPlayAudioSvgaActivity" />
     </application>
 
 </manifest>

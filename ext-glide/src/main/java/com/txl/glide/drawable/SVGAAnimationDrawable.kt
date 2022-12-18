@@ -14,8 +14,10 @@ import android.util.Log
 import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import com.opensource.svgaplayer.SVGADynamicEntity
+import com.opensource.svgaplayer.SVGASoundManager
 import com.opensource.svgaplayer.SVGAVideoEntity
 import com.txl.glide.drawer.SGVADrawerProxy
+import com.txl.glide.helper.AudioPlayerEntity
 import com.txl.glide.helper.reflect.SVGAAudioEntityReflectHelper
 import com.txl.glide.helper.reflect.SVGASoundManagerReflectHelper
 import com.txl.glide.helper.reflect.SVGAVideoEntityReflectHelper
@@ -24,7 +26,7 @@ import com.txl.glide.helper.reflect.SVGAVideoEntityReflectHelper
  * 当同一个SVGA图片被加载的时候 如果此时svga动画在运行中他们会共享同样的动画效果
  *
  * ***/
-class SVGAAnimationDrawable(
+class SVGAAnimationDrawable constructor(
     val videoItem: SVGAVideoEntity,
     private val dynamicItem: SVGADynamicEntity
 ) : Animatable, Drawable(), ValueAnimator.AnimatorUpdateListener {
@@ -68,6 +70,12 @@ class SVGAAnimationDrawable(
 
     var animatorUpdateListener: ValueAnimator.AnimatorUpdateListener? = null
 
+    var audioPlayerListener: AudioPlayerListener? = null
+        set(value) {
+            field = value
+            resetAudioPlayerListener()
+        }
+
     private var mAnimator: ValueAnimator? = null
     private var currentFrame = 0
 
@@ -99,6 +107,24 @@ class SVGAAnimationDrawable(
     fun resetDynamicEntity(dynamicItem: SVGADynamicEntity) {
         drawer = SGVADrawerProxy.createSGVADrawer(videoItem, dynamicItem)
         resetAnimation()
+    }
+
+    private fun resetAudioPlayerListener(){
+        val audioPlayerList = arrayListOf<AudioPlayerEntity>()
+        val fileMap = SVGAVideoEntityReflectHelper.generateAudioFileMap(videoItem)
+        videoItem.movieItem?.audios?.forEach {audio->
+            val audioPlayerEntity = AudioPlayerEntity(audio)
+            audioPlayerEntity.file = fileMap[audio.audioKey]
+            audioPlayerList.add(audioPlayerEntity)
+        }
+        stopOriginAudio()
+        SVGAVideoEntityReflectHelper.getAudioList(videoItem).forEach { audio ->
+            SVGAAudioEntityReflectHelper.getSoundID(audio)?.let { playId ->
+                getSoundPool()?.unload(playId)
+            }
+            SVGAAudioEntityReflectHelper.setSoundID(audio, null)
+        }
+        audioPlayerListener?.onAudioFileReady(audioPlayerList)
     }
 
     override fun getIntrinsicWidth(): Int {
@@ -214,6 +240,10 @@ class SVGAAnimationDrawable(
     private fun stopAnimation() {
         mAnimator?.cancel()
         mAnimator = null
+        pauseOriginAudio()
+    }
+
+    private fun pauseOriginAudio() {
         SVGAVideoEntityReflectHelper.getAudioList(videoItem).forEach {
             SVGAAudioEntityReflectHelper.getPlayID(it)?.let { playId ->
                 if (SVGASoundManagerReflectHelper.isInit()) {
@@ -231,6 +261,7 @@ class SVGAAnimationDrawable(
 
     override fun draw(canvas: Canvas) {
         if(visible){
+            audioPlayerListener?.drawFrame(currentFrame)
             drawer.drawFrame(canvas, currentFrame, scaleType)
         }
     }
@@ -286,6 +317,13 @@ class SVGAAnimationDrawable(
     }
 
     private fun clear() {
+        audioPlayerListener?.onDrawableClear()
+        audioPlayerListener = null
+        stopOriginAudio()
+        videoItem.clear()
+    }
+
+    private fun stopOriginAudio() {
         SVGAVideoEntityReflectHelper.getAudioList(videoItem).forEach { audio ->
             SVGAAudioEntityReflectHelper.getPlayID(audio)?.let { playId ->
                 if (SVGASoundManagerReflectHelper.isInit()) {
@@ -296,6 +334,19 @@ class SVGAAnimationDrawable(
             }
             SVGAAudioEntityReflectHelper.setPlayId(audio, null)
         }
-        videoItem.clear()
+    }
+
+    interface AudioPlayerListener {
+
+        /**
+         * 音频文件准备完成
+         * */
+        fun onAudioFileReady(audioList: ArrayList<AudioPlayerEntity>)
+
+        /**
+         * @param frame SVGA 绘制第几帧
+         * */
+        fun drawFrame(frame: Int)
+        fun onDrawableClear()
     }
 }

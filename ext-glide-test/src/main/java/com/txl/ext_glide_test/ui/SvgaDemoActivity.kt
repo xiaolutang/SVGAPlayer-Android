@@ -54,5 +54,8 @@ class SvgaDemoActivity : AppCompatActivity() {
         findViewById<View>(R.id.tvTestAllSvgaFile).setOnClickListener {
             startActivity(Intent(this,TestAllSVGAFileActivity::class.java))
         }
+        findViewById<View>(R.id.tvCustomPlayAudio).setOnClickListener {
+            startActivity(Intent(this,CustomPlayAudioSvgaActivity::class.java))
+        }
     }
 }
