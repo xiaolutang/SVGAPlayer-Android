@@ -11,6 +11,7 @@ import com.opensource.svgaplayer.SVGAClickAreaListener
 import com.opensource.svgaplayer.SVGADynamicEntity
 import com.txl.glide.drawable.SVGAAnimationDrawable
 import com.txl.glide.helper.reflect.SVGADynamicEntityReflectHelper
+import java.lang.ref.WeakReference
 import kotlin.math.min
 
 class SVGAImageViewTarget private constructor(imageView: ImageView) : DrawableImageViewTarget(imageView),
@@ -54,8 +55,8 @@ class SVGAImageViewTarget private constructor(imageView: ImageView) : DrawableIm
     override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
         if (resource is SVGAAnimationDrawable) {
             resetScaleType(resource)
-            resource.animatorListener = internalAnimatorListener
-            resource.animatorUpdateListener = this
+            resource.animatorListener = WeakReference(internalAnimatorListener)
+            resource.animatorUpdateListener = WeakReference(this)
             resource.repeatMode = repeatMode
             if(repeatCount == REPEAT_COUNT_UN_SET){
                 if(resource.hasAudio()){
@@ -90,7 +91,7 @@ class SVGAImageViewTarget private constructor(imageView: ImageView) : DrawableIm
                 resource.stepToFrame(frame,myToFrame.play)
             }
             audioPlayerListener?.let { listener->
-                resource.audioPlayerListener = listener
+                resource.audioPlayerListener = WeakReference(listener)
             }
         }
         super.onResourceReady(resource, transition)

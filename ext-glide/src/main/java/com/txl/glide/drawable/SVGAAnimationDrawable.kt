@@ -21,6 +21,7 @@ import com.txl.glide.helper.AudioPlayerEntity
 import com.txl.glide.helper.reflect.SVGAAudioEntityReflectHelper
 import com.txl.glide.helper.reflect.SVGASoundManagerReflectHelper
 import com.txl.glide.helper.reflect.SVGAVideoEntityReflectHelper
+import java.lang.ref.WeakReference
 
 /**
  * 当同一个SVGA图片被加载的时候 如果此时svga动画在运行中他们会共享同样的动画效果
@@ -58,19 +59,11 @@ class SVGAAnimationDrawable constructor(
         const val TAG = "SVGAAnimationDrawable"
     }
 
-    var animatorListener: Animator.AnimatorListener? = null
-        set(value) {
-            mAnimator?.removeListener(field)
-            field = value
-            value?.let {
-                mAnimator?.addListener(it)
-            }
+    var animatorListener: WeakReference<Animator.AnimatorListener>? = null
 
-        }
+    var animatorUpdateListener: WeakReference<ValueAnimator.AnimatorUpdateListener>? = null
 
-    var animatorUpdateListener: ValueAnimator.AnimatorUpdateListener? = null
-
-    var audioPlayerListener: AudioPlayerListener? = null
+    var audioPlayerListener: WeakReference<AudioPlayerListener>? = null
         set(value) {
             field = value
             resetAudioPlayerListener()
@@ -124,7 +117,7 @@ class SVGAAnimationDrawable constructor(
             }
             SVGAAudioEntityReflectHelper.setSoundID(audio, null)
         }
-        audioPlayerListener?.onAudioFileReady(audioPlayerList)
+        audioPlayerListener?.get()?.onAudioFileReady(audioPlayerList)
     }
 
     override fun getIntrinsicWidth(): Int {
@@ -160,24 +153,22 @@ class SVGAAnimationDrawable constructor(
             mAnimator?.repeatCount = repeatCount
             mAnimator?.repeatMode = repeatMode
             mAnimator?.addUpdateListener(this)
-            animatorListener?.let {
-                mAnimator?.addListener(it)
-            }
             mAnimator?.addListener(object :Animator.AnimatorListener{
                 override fun onAnimationStart(animation: Animator?) {
-
+                    animatorListener?.get()?.onAnimationStart(animation)
                 }
 
                 override fun onAnimationEnd(animation: Animator?) {
                     currentFrame = videoItem.frames - 1
+                    animatorListener?.get()?.onAnimationEnd(animation)
                 }
 
                 override fun onAnimationCancel(animation: Animator?) {
-
+                    animatorListener?.get()?.onAnimationCancel(animation)
                 }
 
                 override fun onAnimationRepeat(animation: Animator?) {
-
+                    animatorListener?.get()?.onAnimationRepeat(animation)
                 }
 
             })
@@ -261,7 +252,7 @@ class SVGAAnimationDrawable constructor(
 
     override fun draw(canvas: Canvas) {
         if(visible){
-            audioPlayerListener?.drawFrame(currentFrame)
+            audioPlayerListener?.get()?.drawFrame(currentFrame)
             drawer.drawFrame(canvas, currentFrame, scaleType)
         }
     }
@@ -285,7 +276,7 @@ class SVGAAnimationDrawable constructor(
     override fun onAnimationUpdate(animation: ValueAnimator?) {
         currentFrame = animation?.animatedValue as Int
         invalidateSelf()
-        animatorUpdateListener?.onAnimationUpdate(animation)
+        animatorUpdateListener?.get()?.onAnimationUpdate(animation)
     }
 
     /**
@@ -305,7 +296,6 @@ class SVGAAnimationDrawable constructor(
         }
     }
 
-    // FIXME: 完成资源回收
     fun recycle() {
         clear()
         animatorUpdateListener = null
@@ -317,7 +307,7 @@ class SVGAAnimationDrawable constructor(
     }
 
     private fun clear() {
-        audioPlayerListener?.onDrawableClear()
+        audioPlayerListener?.get()?.onDrawableClear()
         audioPlayerListener = null
         stopOriginAudio()
         videoItem.clear()
